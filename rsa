@@ -1,72 +1,70 @@
 #!/usr/bin/python3
 
-
 import sys
-import random
 import time
 
+# Function to check if a number is prime
+def is_prime(n):
+    '''
+    Checks if a number is prime.
 
-def is_prime(num, k=20):
+    Args:
+        n (int): The number to check.
+
+    Returns:
+        bool: True if the number is prime, False otherwise.
     '''
-    '''
-    if num == 2 or num == 3:
-        return True
-    if num < 2 or num % 2 == 0:
+    if n < 2:
         return False
-
-
-    d = num - 1
-    r = 0
-    while d % 2 == 0:
-        d //= 2
-        r += 1
-
-
-    for _ in range(k):
-        a = random.randint(2, num - 2)
-        x = pow(a, d, num)
-        if x == 1 or x == num - 1:
-            continue
-        for _ in range(r - 1):
-            x = pow(x, 2, num)
-            if x == num - 1:
-                break
-        else:
+    for i in range(2, int(n**0.5) + 1):
+        if n % i == 0:
             return False
-
-
     return True
 
+# Function to find prime factors p and q of n
+def factorize_rsa(n):
+    '''
+    Finds prime factors p and q of an RSA number n.
 
-if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: rsa <file>")
-        exit()
+    Args:
+        n (int): The RSA number to factorize.
 
+    Returns:
+        tuple or None: A tuple (p, q) if prime factors are found, None otherwise.
+    '''
+    for p in range(2, int(n**0.5) + 1):
+        if n % p == 0 and is_prime(p):
+            q = n // p
+            if is_prime(q):
+                return (p, q)
+    return None
 
-    input_file = sys.argv[1]
+# Check for the correct number of command line arguments
+if len(sys.argv) != 2:
+    print("Usage: rsa <file>")
+    exit()
 
+# Read the input file name from the command line arguments
+input_file = sys.argv[1]
 
-    try:
-        with open(input_file, 'r') as f:
-            lines = f.readlines()
-    except FileNotFoundError:
-        print("File not found")
-        exit()
+try:
+    with open(input_file, 'r') as f:
+        n = int(f.readline().strip())
+except FileNotFoundError:
+    print("File not found")
+    exit()
 
+start_time = time.time()
 
-    start_time = time.time()
+# Find prime factors p and q of n
+factors = factorize_rsa(n)
 
+if factors:
+    p, q = factors
+    print(f"{n}={p}*{q}")
+else:
+    print("Unable to find prime factors")
 
-    num = int(lines[0].strip())
-
-
-    for i in range(2, num//2):
-        if num % i == 0 and is_prime(i) and is_prime(num//i):
-            print(f"{num}={i}*{num//i}")
-            break
-
-
-        if time.time() - start_time > 5:
-            print("Time limit exceeded")
-            exit()
+# Check if the elapsed time exceeds 5 seconds
+if time.time() - start_time > 5:
+    print("Time limit exceeded")
